@@ -9,7 +9,8 @@ Estudante de Engenharia de Computação na UFPB e estagiário de desenvolvimento
   <a href="mailto:saulocm1@gmail.com"><img alt="E-mail" src="https://img.shields.io/badge/E--mail-EA4335?style=for-the-badge&logo=gmail&logoColor=white"></a>
 </p>
 
-<img src="metrics.svg" alt="Atividade no GitHub, linguagens, hábitos e músicas recentes" width="100%">
+<img src="metrics.svg" alt="Atividade no GitHub, linguagens, calendário de contribuições e músicas recentes" width="100%">
+<img src="habitos.svg" alt="Commits por hora do dia e por dia da semana" width="60%">
 
 #### Tecnologias
 

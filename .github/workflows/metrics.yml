@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [".github/workflows/metrics.yml"]
+    paths: [".github/workflows/metrics.yml", "ferramentas/habitos.mjs"]
 
 permissions:
   contents: write
@@ -30,21 +30,33 @@ jobs:
           repositories_affiliations: owner
           plugin_isocalendar: yes
           plugin_isocalendar_duration: full-year
-          plugin_habits: yes
-          plugin_habits_charts: yes
-          plugin_habits_facts: no
-          plugin_habits_from: 200
-          plugin_habits_days: 30
-          plugin_habits_languages_limit: 8
           plugin_languages: yes
           plugin_languages_limit: 8
           plugin_languages_ignored: html, css, scss, makefile, dockerfile, shell, batchfile, powershell, tex
           plugin_languages_details: percentage
-          plugin_pagespeed: yes
-          plugin_pagespeed_url: https://sauloscm.github.io
           plugin_music: ${{ secrets.SPOTIFY_REFRESH_TOKEN != '' && 'yes' || 'no' }}
           plugin_music_provider: spotify
           plugin_music_mode: recent
           plugin_music_limit: 3
           plugin_music_played_at: yes
           plugin_music_token: ${{ secrets.SPOTIFY_CLIENT_ID }}, ${{ secrets.SPOTIFY_CLIENT_SECRET }}, ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+
+  # O plugin habits do metrics quebrou com a mudança nos eventos de push do GitHub; este gráfico o substitui.
+  habitos:
+    needs: metrics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node ferramentas/habitos.mjs habitos.svg
+        env:
+          GH_TOKEN: ${{ secrets.METRICS_TOKEN }}
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add habitos.svg
+          git diff --cached --quiet || (git commit -m "Atualiza habitos.svg" && git push)
