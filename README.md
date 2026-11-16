@@ -86,8 +86,6 @@
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/telemetria-dark.svg"><img src="assets/telemetria-light.svg" width="100%" alt="Telemetria das duas contas: contribuições no mesmo calendário, hábitos de commit por hora e linguagens mais usadas."></picture>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/tocando-dark.svg"><img src="assets/tocando-light.svg" width="100%" alt="Músicas ouvidas por último no Spotify"></picture>
-
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg"><img src="assets/divisor-light.svg" width="100%" alt=""></picture>
 
 ## 03 · endpoint

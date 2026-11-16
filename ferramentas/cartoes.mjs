@@ -352,7 +352,7 @@ terminal('term-ingestion-log', 'Terminal. journalctl -u saulo --since 2023 --rev
   [['apagado', 'hoje     '], ['ambar', 'UFPB'], ['texto', ' · Bacharelado em Engenharia de Computação'], ['apagado', ' · em andamento.']],
 ]);
 telemetria();
-await tocando();
+// await tocando(); // seção do Spotify oculta a pedido; descomente (e volte a imagem no readme.py) para reativar
 terminal('term-endpoint', 'Terminal. curl sauloscm.github.io/contato. E-mail saulocm1@gmail.com, LinkedIn saulo-costa-ma, portfólio sauloscm.github.io, currículo sauloscm.github.io/curriculo.', 'curl -s sauloscm.github.io/contato', [
   [['texto', '{']],
   [['texto', '  '], ['violeta', '"email"'], ['texto', ': '], ['verde', '"saulocm1@gmail.com"'], ['texto', ',']],

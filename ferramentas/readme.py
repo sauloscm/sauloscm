@@ -73,8 +73,6 @@ README = f"""{pic("hero", "Contexto: Saulo Costa. Pergunta: quem sou? Resposta: 
 
 {pic("telemetria", "Telemetria das duas contas: contribuições no mesmo calendário, hábitos de commit por hora e linguagens mais usadas.")}
 
-{pic("tocando", "Músicas ouvidas por último no Spotify")}
-
 {DIVISOR}
 
 ## 03 · endpoint
