@@ -412,7 +412,7 @@ async function bardo() {
       return `<rect x="${x}" y="56" width="${w}" height="76" rx="10" fill="${C.fundo}" stroke="${C.borda}"/>
 <clipPath id="capa${i}"><rect x="${x + 10}" y="66" width="56" height="56" rx="6"/></clipPath>
 ${f.capa ? `<image x="${x + 10}" y="66" width="56" height="56" href="${f.capa}" clip-path="url(#capa${i})"/>` : ''}
-<text x="${x + 78}" y="90" class="mono" font-size="12.5" fill="${C.texto}">${esc(corta(f.nome, 22))}</text>
+<text x="${x + 78}" y="90" class="mono" font-size="12.5" fill="${C.texto}">${esc(corta(f.nome, 17))}</text>
 <text x="${x + 78}" y="110" class="mono" font-size="11" fill="${C.apagado}">${esc(corta(f.artista, 25))}</text>
 <g transform="translate(${x + w - 34} 72)" class="eq">${[0, 1, 2].map((k) => `<rect x="${k * 6}" y="0" width="4" height="14" rx="1" fill="${PALETA[i]}" style="animation-delay:${k * 0.25}s"/>`).join('')}</g>`;
     }).join('');
