@@ -18,39 +18,6 @@ Estudante de Engenharia de Computação na UFPB e estagiário de desenvolvimento
 
 Também: DuckDB, dbt, pandas, Playwright, WebRTC, API do Claude e MCP.
 
-#### Projetos
-
-O código destes projetos é privado (empresa ou produto próprio). Cada página tem vídeos de demonstração com dados fictícios.
-
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <a href="https://sauloscm.github.io/projetos/warehouse-mcp/"><img src="https://sauloscm.github.io/projetos/warehouse-mcp/v2-capa.jpg" alt="Sagaz"></a>
-      <br><b><a href="https://sauloscm.github.io/projetos/warehouse-mcp/">Sagaz</a></b>: agente de dados com a API do Claude e MCP. Pergunta em português, resposta com o SQL que a comprova.
-    </td>
-    <td width="50%" valign="top">
-      <a href="https://sauloscm.github.io/projetos/central-automacoes/"><img src="https://sauloscm.github.io/projetos/central-automacoes/v3-capa.jpg" alt="Nexo"></a>
-      <br><b><a href="https://sauloscm.github.io/projetos/central-automacoes/">Nexo</a></b>: central de automações com login único, permissões, registro de execuções e agendamento.
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <a href="https://sauloscm.github.io/projetos/robos-financeiros/"><img src="https://sauloscm.github.io/projetos/robos-financeiros/capa.jpg" alt="Robô de extração"></a>
-      <br><b><a href="https://sauloscm.github.io/projetos/robos-financeiros/">Robô de extração</a></b>: Playwright com verificação em duas etapas, conferindo taxas cobradas venda a venda.
-    </td>
-    <td width="50%" valign="top">
-      <a href="https://sauloscm.github.io/projetos/emissor-nfse/"><img src="https://sauloscm.github.io/projetos/emissor-nfse/capa.jpg" alt="Emissor de NFS-e"></a>
-      <br><b><a href="https://sauloscm.github.io/projetos/emissor-nfse/">Emissor de NFS-e</a></b>: XML assinado com certificado digital, DANFSe em PDF e envio por e-mail.
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" valign="top">
-      <a href="https://sauloscm.github.io/projetos/oluasin/"><img src="https://sauloscm.github.io/projetos/oluasin/capa.jpg" alt="Oluasin"></a>
-      <br><b><a href="https://sauloscm.github.io/projetos/oluasin/">Oluasin</a></b>: app desktop local-first com chat, voz, tela compartilhada, páginas, kanban e planilha. Os dados ficam nos PCs da equipe.
-    </td>
-  </tr>
-</table>
-
 #### Agora
 
 - Estágio de desenvolvimento e automação na Virtus Consultoria
