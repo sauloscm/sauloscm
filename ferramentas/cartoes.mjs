@@ -139,7 +139,7 @@ const ativos = ano.filter((d) => d.pessoal + d.estagio).length;
 
 // ---------- hero: a pergunta, a resposta e o espaço de embeddings ----------
 function hero() {
-  gravar('hero', 'Contexto: Saulo Costa. Pergunta: quem é o saulo costa? Resposta: constrói agentes de IA, automações e ferramentas internas, do protótipo ao deploy; Engenharia de Computação na UFPB, conclusão prevista em 2027, João Pessoa. Fontes: Sagaz, Nexo, Oluasin, Neolis. Ao lado, um espaço de embeddings em que a pergunta acende os 5 vizinhos mais próximos.', (T) => {
+  gravar('hero', 'Contexto: Saulo Costa. Pergunta: quem sou? Resposta: construo agentes de IA, automações e ferramentas internas, do protótipo ao deploy; Engenharia de Computação na UFPB, João Pessoa. Fontes: Sagaz, Nexo, Oluasin, Neolis. Ao lado, um espaço de embeddings em que a pergunta acende os 5 vizinhos mais próximos.', (T) => {
     const q = chip(36, 50, 'query', T);
     const fontesX = [36];
     const fontes = ['fontes', 'sagaz', 'nexo', 'oluasin', 'neolis'].map((f, i) => {
@@ -147,7 +147,7 @@ function hero() {
       fontesX.push(fontesX[i] + c.w + 8);
       return c.svg;
     }).join('');
-    const c1 = chip(338, 196, '01', T, { tamanho: 10 }), c2 = chip(372, 196, '02', T, { tamanho: 10 }), c3 = chip(294, 268, '03', T, { tamanho: 10 });
+    const c1 = chip(344, 196, '01', T, { tamanho: 10 }), c2 = chip(378, 196, '02', T, { tamanho: 10 }), c3 = chip(170, 268, '03', T, { tamanho: 10 });
 
     // Espaço de embeddings: agrupamentos fixos, a consulta e os 5 vizinhos mais próximos.
     const ex = 520, ey = 40, ew = 284, eh = 300;
@@ -162,13 +162,13 @@ function hero() {
     const linhas = vizinhos.map((p, i) => `<line x1="${ex + consulta.x}" y1="${ey + consulta.y}" x2="${(ex + p.x).toFixed(1)}" y2="${(ey + p.y).toFixed(1)}" stroke="${T.ambar}" stroke-width="1.2" class="traco" style="animation-delay:${(2.2 + i * 0.15).toFixed(2)}s"/>`).join('');
     const rotulos = grupos.map(([rot, gx, gy]) => `<text x="${ex + gx}" y="${ey + gy + 38}" font-size="9.5" fill="${T.apagado}" text-anchor="middle">${rot}</text>`).join('');
     const corpo = `
-${q.svg}<text x="${36 + q.w + 12}" y="50" font-size="15" fill="${T.texto}">"quem é o saulo costa?"</text>
+${q.svg}<text x="${36 + q.w + 12}" y="50" font-size="15" fill="${T.texto}">"quem sou?"</text>
 <text x="34" y="122" font-size="54" class="b" fill="${T.texto}">Saulo Costa</text>
-${stream(36, 172, 'Constrói agentes de IA, automações e', { cor: T.texto, inicio: 0.6 })}
-${stream(36, 196, 'ferramentas internas, do', { cor: T.texto, inicio: 0.96 })}<text x="264" y="196" font-size="15" fill="${T.texto}" class="w" style="animation-delay:1.14s">deploy.</text>
+${stream(36, 172, 'Construo agentes de IA, automações e ferramentas', { cor: T.texto, inicio: 0.6 })}
+${stream(36, 196, 'internas, do protótipo ao deploy.', { cor: T.texto, inicio: 0.96 })}
 ${c1.svg.replace('<rect', '<rect class="w" style="animation-delay:1.3s"').replace('<text', '<text class="w" style="animation-delay:1.3s"')}${c2.svg.replace('<rect', '<rect class="w" style="animation-delay:1.36s"').replace('<text', '<text class="w" style="animation-delay:1.36s"')}
 <text x="36" y="244" font-size="13" fill="${T.suave}">Engenharia de Computação · UFPB</text>
-<text x="36" y="268" font-size="13" fill="${T.suave}">conclusão em 2027 · João Pessoa</text>${c3.svg}
+<text x="36" y="268" font-size="13" fill="${T.suave}">João Pessoa, PB</text>${c3.svg}
 ${fontes}
 <text x="36" y="372" font-size="18" fill="${T.ambar}" class="cursor">&gt;</text>
 <rect x="${ex - 16}" y="${ey - 16}" width="${ew + 32}" height="${eh + 32}" rx="8" fill="none" stroke="${T.linha}"/>
@@ -240,25 +240,6 @@ ${saida}
       altura, corpo,
       estilo: `${ESTILO_STREAM}.digitando{animation:digitar .9s steps(${comando.length}) .1s forwards}@keyframes digitar{to{width:${larguraCmd.toFixed(1)}px}}`,
     };
-  });
-}
-
-// ---------- pipeline de um projeto ----------
-function pipeline(nome, rotulo, etapas, nota) {
-  gravar(nome, `${rotulo}: ${etapas.map(([t, s]) => `${t} (${s})`).join(', ')}. ${nota}`, (T) => {
-    const n = etapas.length, g = 26, w = (L - 56 - (n - 1) * g) / n, y = 58, h = 62;
-    const caixas = etapas.map(([t, s], i) => {
-      const x = 28 + i * (w + g);
-      const destaque = i === n - 1 ? T.ambar : i === Math.floor(n / 2) ? T.violeta : T.borda;
-      const seta = i < n - 1 ? `<line x1="${x + w + 3}" y1="${y + h / 2}" x2="${x + w + g - 5}" y2="${y + h / 2}" stroke="${T.ambar}" stroke-width="1.4" stroke-dasharray="3 3" class="fluxo"/><path d="M${x + w + g - 6} ${y + h / 2 - 4}l5 4l-5 4" fill="none" stroke="${T.ambar}" stroke-width="1.4"/>` : '';
-      return `<rect x="${x}" y="${y}" width="${w.toFixed(1)}" height="${h}" rx="6" fill="${T.fundo}" stroke="${destaque}"/>
-<text x="${(x + w / 2).toFixed(1)}" y="${y + 26}" font-size="12.5" class="b" fill="${T.texto}" text-anchor="middle">${esc(t)}</text>
-<text x="${(x + w / 2).toFixed(1)}" y="${y + 45}" font-size="10" fill="${T.apagado}" text-anchor="middle">${esc(s)}</text>${seta}`;
-    }).join('\n');
-    const corpo = `<rect x="28" y="24" width="8" height="8" fill="${T.ambar}"/><text x="44" y="32" font-size="11" fill="${T.ambar}" letter-spacing="3">${esc(rotulo.toUpperCase())}</text>
-${caixas}
-<text x="${L / 2}" y="${y + h + 30}" font-size="11" fill="${T.apagado}" text-anchor="middle">${esc(nota)}</text>`;
-    return { altura: y + h + 48, corpo, estilo: `.fluxo{animation:fluxo 1s linear infinite}@keyframes fluxo{to{stroke-dashoffset:-12}}` };
   });
 }
 
@@ -358,19 +339,7 @@ ${f.capa ? `<image x="${x + 8}" y="58" width="48" height="48" href="${f.capa}" c
 hero();
 impacto();
 divisor();
-terminal('term-system-prompt', 'Terminal. cat system_prompt.md. Sistema: você é Saulo Costa, estudante de Engenharia de Computação na UFPB, estagiário de desenvolvimento em João Pessoa. Regras: responder só com os trechos recuperados e citar a seção; sem dados de clientes, as demos usam dados fictícios.', 'cat system_prompt.md', [
-  [['ambar', '# system']],
-  ...quebrar('Você é Saulo Costa, estudante de Engenharia de Computação na UFPB (conclusão prevista em 2027) e estagiário de desenvolvimento em João Pessoa. Você coloca IA para trabalhar em produção: agentes que consultam dados com segurança, robôs que conferem cobranças venda a venda e sistemas que deixam os dados de cada equipe com ela. Três coisas que você entregou: Sagaz, Nexo e Oluasin.', 96),
-  '',
-  [['ambar', '# regras']],
-  ...quebrar('- responda só com os trechos recuperados e cite a seção, como [01];', 96),
-  ...quebrar('- se a resposta não estiver no contexto, diga isso em vez de adivinhar;', 96),
-  ...quebrar('- dados de clientes nunca entram no contexto: as demos usam dados fictícios.', 96),
-]);
-pipeline('pipeline-sagaz', 'sagaz · agente de dados', [['pergunta', 'em português'], ['catálogo', '~5.000 tabelas'], ['claude', 'ferramentas + memória'], ['sql', 'somente leitura'], ['resposta', 'com o sql que prova']], 'as mesmas ferramentas ficam expostas por um servidor MCP · custo de cada pergunta registrado');
-pipeline('pipeline-nexo', 'nexo · central de automações', [['login único', 'sessão por pessoa'], ['permissões', 'por automação'], ['containers', '7+ automações'], ['execuções', 'progresso ao vivo'], ['agendamento', 'rodadas sozinhas']], 'rede interna isolada · identidade passada por cabeçalho que o portal remove na entrada');
-pipeline('pipeline-oluasin', 'oluasin · app local-first', [['sqlite local', 'dados no PC'], ['sincronia', 'entre os PCs'], ['webrtc', 'voz e tela'], ['licenças', 'assinadas Ed25519'], ['atualização', 'assinada']], 'funciona offline · servidor de licenças nunca recebe o conteúdo das equipes');
-terminal('term-ingestion-log', 'Terminal. journalctl -u saulo --since 2023 --reverse. 2026-05, Virtus Consultoria, estagiário em desenvolvimento de software e automação. 2025, PET-Saúde UFPB/SUS-PB, pesquisador e desenvolvedor. 2023, Outlier, especialista em IA. UFPB, Engenharia de Computação, conclusão prevista em 2027.', 'journalctl -u saulo --since 2023 --reverse', [
+terminal('term-ingestion-log', 'Terminal. journalctl -u saulo --since 2023 --reverse. 2026-05, Virtus Consultoria, estagiário em desenvolvimento de software e automação. 2025, PET-Saúde UFPB/SUS-PB, pesquisador e desenvolvedor. 2023, Outlier, especialista em IA. UFPB, Engenharia de Computação, em andamento.', 'journalctl -u saulo --since 2023 --reverse', [
   [['apagado', '2026-05  '], ['ambar', 'Virtus Consultoria'], ['texto', ' · Estagiário em Desenvolvimento e Automação'], ['apagado', ' · mai 2026 → hoje']],
   ...quebrar('central de automações com login único e 7+ automações em containers; robôs de extração e conciliação com Playwright e APIs; emissor de NFS-e no padrão nacional, com XML assinado por certificado digital; agente com a API do Claude sobre um warehouse em DuckDB e dbt.', 86).map((t) => [['apagado', '         '], ['suave', t]]),
   '',
@@ -380,7 +349,7 @@ terminal('term-ingestion-log', 'Terminal. journalctl -u saulo --since 2023 --rev
   [['apagado', '2023     '], ['ambar', 'Outlier'], ['texto', ' · Especialista em IA (freelance)'], ['apagado', ' · remoto']],
   [['apagado', '         '], ['suave', 'prompts e avaliações de qualidade e segurança para treinar modelos de linguagem.']],
   '',
-  [['apagado', '2027     '], ['ambar', 'UFPB'], ['texto', ' · Bacharelado em Engenharia de Computação'], ['apagado', ' · ainda indexando.']],
+  [['apagado', 'hoje     '], ['ambar', 'UFPB'], ['texto', ' · Bacharelado em Engenharia de Computação'], ['apagado', ' · em andamento.']],
 ]);
 telemetria();
 await tocando();
