@@ -1,15 +1,22 @@
 """Monta o README.md do perfil a partir dos cartões em assets/. Rodar quando o texto mudar:
 python ferramentas/readme.py
 """
+import hashlib
 from pathlib import Path
 from urllib.parse import quote
 
 RAIZ = Path(__file__).resolve().parent.parent
 
 
+def versao(arquivo):
+    """Código curto do conteúdo, para o navegador não reaproveitar uma imagem antiga do cache."""
+    return hashlib.sha1((RAIZ / "assets" / arquivo).read_bytes()).hexdigest()[:8]
+
+
 def pic(nome, alt, link=None):
-    p = (f'<picture><source media="(prefers-color-scheme: dark)" srcset="assets/{nome}-dark.svg">'
-         f'<img src="assets/{nome}-light.svg" width="100%" alt="{alt}"></picture>')
+    escuro, claro = f"{nome}-dark.svg", f"{nome}-light.svg"
+    p = (f'<picture><source media="(prefers-color-scheme: dark)" srcset="assets/{escuro}?v={versao(escuro)}">'
+         f'<img src="assets/{claro}?v={versao(claro)}" width="100%" alt="{alt}"></picture>')
     return f'<a href="{link}">{p}</a>' if link else p
 
 

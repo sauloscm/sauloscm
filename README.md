@@ -1,4 +1,4 @@
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg"><img src="assets/hero-light.svg" width="100%" alt="Contexto: Saulo Costa. Pergunta: quem sou? Resposta: construo agentes de IA, automações e ferramentas internas, do protótipo ao deploy; Engenharia de Computação na UFPB, João Pessoa. Fontes: Sagaz, Nexo, Oluasin, Neolis. Ao lado, um espaço de embeddings em que a pergunta acende os 5 vizinhos mais próximos."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg?v=bee5c575"><img src="assets/hero-light.svg?v=3da6de03" width="100%" alt="Contexto: Saulo Costa. Pergunta: quem sou? Resposta: construo agentes de IA, automações e ferramentas internas, do protótipo ao deploy; Engenharia de Computação na UFPB, João Pessoa. Fontes: Sagaz, Nexo, Oluasin, Neolis. Ao lado, um espaço de embeddings em que a pergunta acende os 5 vizinhos mais próximos."></picture>
 
 <p align="center">
   <a href="https://sauloscm.github.io"><img src="https://img.shields.io/badge/sauloscm.github.io-F2A93B?style=flat-square&logo=googlechrome&logoColor=1A1408" alt="sauloscm.github.io"></a>
@@ -7,17 +7,17 @@
   <a href="mailto:saulocm1@gmail.com"><img src="https://img.shields.io/badge/email-5BD6A2?style=flat-square&logo=gmail&logoColor=1A1408" alt="email"></a>
 </p>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/impacto-dark.svg"><img src="assets/impacto-light.svg" width="100%" alt="Impacto: 7+ automações em produção; cerca de 5.000 tabelas ao alcance do agente de dados; 60+ etapas no teste de ponta a ponta do Oluasin; contribuições em 12 meses somando a conta pessoal e a do estágio."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/impacto-dark.svg?v=a8690732"><img src="assets/impacto-light.svg?v=88f472aa" width="100%" alt="Impacto: 7+ automações em produção; cerca de 5.000 tabelas ao alcance do agente de dados; 60+ etapas no teste de ponta a ponta do Oluasin; contribuições em 12 meses somando a conta pessoal e a do estágio."></picture>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg"><img src="assets/divisor-light.svg" width="100%" alt=""></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg?v=63e07ace"><img src="assets/divisor-light.svg?v=3c5270fc" width="100%" alt=""></picture>
 
 ## 00 · ingestion log
 
 <sub>mais recentes primeiro</sub>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/term-ingestion-log-dark.svg"><img src="assets/term-ingestion-log-light.svg" width="100%" alt="Terminal. journalctl -u saulo --since 2023 --reverse. 2026-05, Virtus Consultoria, estagiário em desenvolvimento de software e automação. 2025, PET-Saúde UFPB/SUS-PB, pesquisador e desenvolvedor. 2023, Outlier, especialista em IA. UFPB, Engenharia de Computação, em andamento."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/term-ingestion-log-dark.svg?v=4ab9d149"><img src="assets/term-ingestion-log-light.svg?v=aed50cc1" width="100%" alt="Terminal. journalctl -u saulo --since 2023 --reverse. 2026-05, Virtus Consultoria, estagiário em desenvolvimento de software e automação. 2025, PET-Saúde UFPB/SUS-PB, pesquisador e desenvolvedor. 2023, Outlier, especialista em IA. UFPB, Engenharia de Computação, em andamento."></picture>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg"><img src="assets/divisor-light.svg" width="100%" alt=""></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg?v=63e07ace"><img src="assets/divisor-light.svg?v=3c5270fc" width="100%" alt=""></picture>
 
 ## 01 · embeddings
 
@@ -78,18 +78,18 @@
 </tr>
 </table>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg"><img src="assets/divisor-light.svg" width="100%" alt=""></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg?v=63e07ace"><img src="assets/divisor-light.svg?v=3c5270fc" width="100%" alt=""></picture>
 
 ## 02 · telemetry
 
 <sub>a conta pessoal e a do estágio somadas; da conta do estágio entram só contagens</sub>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/telemetria-dark.svg"><img src="assets/telemetria-light.svg" width="100%" alt="Telemetria das duas contas: contribuições no mesmo calendário, hábitos de commit por hora e linguagens mais usadas."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/telemetria-dark.svg?v=1b6ee95b"><img src="assets/telemetria-light.svg?v=79055f14" width="100%" alt="Telemetria das duas contas: contribuições no mesmo calendário, hábitos de commit por hora e linguagens mais usadas."></picture>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg"><img src="assets/divisor-light.svg" width="100%" alt=""></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg?v=63e07ace"><img src="assets/divisor-light.svg?v=3c5270fc" width="100%" alt=""></picture>
 
 ## 03 · endpoint
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/term-endpoint-dark.svg"><img src="assets/term-endpoint-light.svg" width="100%" alt="Terminal. curl sauloscm.github.io/contato. E-mail saulocm1@gmail.com, LinkedIn saulo-costa-ma, portfólio sauloscm.github.io, currículo sauloscm.github.io/curriculo."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/term-endpoint-dark.svg?v=17b4d246"><img src="assets/term-endpoint-light.svg?v=26960ed9" width="100%" alt="Terminal. curl sauloscm.github.io/contato. E-mail saulocm1@gmail.com, LinkedIn saulo-costa-ma, portfólio sauloscm.github.io, currículo sauloscm.github.io/curriculo."></picture>
 
 <p align="center"><sub><a href="mailto:saulocm1@gmail.com">saulocm1@gmail.com</a> · <a href="https://www.linkedin.com/in/saulo-costa-ma">linkedin.com/in/saulo-costa-ma</a> · <a href="https://sauloscm.github.io">sauloscm.github.io</a></sub></p>

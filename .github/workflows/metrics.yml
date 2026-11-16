@@ -30,10 +30,11 @@ jobs:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+      - run: python3 ferramentas/readme.py
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets dados
+          git add assets dados README.md
           git diff --cached --quiet || (git commit -m "Reescreve as crônicas [skip ci]" && git push)
     env:
       VIRTUS_TOKEN: ${{ secrets.VIRTUS_TOKEN }}
