@@ -1,0 +1,50 @@
+name: Painel do perfil
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/metrics.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: lowlighter/metrics@v3.34
+        with:
+          filename: metrics.svg
+          token: ${{ secrets.METRICS_TOKEN }}
+          committer_token: ${{ secrets.GITHUB_TOKEN }}
+          user: sauloscm
+          template: classic
+          config_display: large
+          config_timezone: America/Fortaleza
+          config_octicon: yes
+          base: header, activity, community, repositories
+          # Só os repositórios da própria conta, nunca os privados de outras pessoas em que sou colaborador.
+          repositories_affiliations: owner
+          plugin_isocalendar: yes
+          plugin_isocalendar_duration: full-year
+          plugin_habits: yes
+          plugin_habits_charts: yes
+          plugin_habits_facts: no
+          plugin_habits_from: 200
+          plugin_habits_days: 30
+          plugin_habits_languages_limit: 8
+          plugin_languages: yes
+          plugin_languages_limit: 8
+          plugin_languages_ignored: html, css, scss, makefile, dockerfile, shell, batchfile, powershell, tex
+          plugin_languages_details: percentage
+          plugin_pagespeed: yes
+          plugin_pagespeed_url: https://sauloscm.github.io
+          plugin_music: ${{ secrets.SPOTIFY_REFRESH_TOKEN != '' && 'yes' || 'no' }}
+          plugin_music_provider: spotify
+          plugin_music_mode: recent
+          plugin_music_limit: 3
+          plugin_music_played_at: yes
+          plugin_music_token: ${{ secrets.SPOTIFY_CLIENT_ID }}, ${{ secrets.SPOTIFY_CLIENT_SECRET }}, ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
