@@ -1,5 +1,6 @@
-// Gera as imagens do perfil no tema "fogueira": ferro, osso e brasa, arte em ASCII.
-// Saída em assets/. Só totais vão para as imagens: nenhum nome de repositório, cliente ou mensagem.
+// Gera as imagens do perfil: cartões no formato de um sistema de RAG, em versão clara e escura.
+// Saída em assets/<nome>-dark.svg e assets/<nome>-light.svg. Só totais vão para as imagens:
+// nenhum nome de repositório, cliente ou mensagem.
 // Uso: GH_TOKEN=... [SPOTIFY_CLIENT_ID=... SPOTIFY_CLIENT_SECRET=... SPOTIFY_REFRESH_TOKEN=...] node ferramentas/cartoes.mjs
 // Para iterar no visual sem consultar o GitHub de novo: CARTOES_CACHE=caminho.json (criado na primeira execução).
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -10,45 +11,55 @@ const FUSO = -3; // America/Fortaleza, sem horário de verão
 const L = 840; // largura de todos os cartões
 mkdirSync('assets', { recursive: true });
 
-// ---------- tema ----------
-const C = {
-  fundo: '#0d0c0a', painel: '#14120f', borda: '#3b3328', bordaInterna: '#26211b', bronze: '#9a8455',
-  osso: '#d6cbb0', ossoEscuro: '#a39778', cinza: '#6f675a', apagado: '#3a342b', brasa: '#c4632b', sangue: '#8c2a1b',
+// ---------- temas ----------
+const TEMAS = {
+  dark: { fundo: '#15171B', painel: '#1B1E23', borda: '#2E323A', linha: '#262A31', texto: '#ECE9E3', suave: '#9A9DA6', apagado: '#6A6E77', ambar: '#F2A93B', violeta: '#A594FF', verde: '#5BD6A2', sobreAmbar: '#1A1408' },
+  light: { fundo: '#FBFAF7', painel: '#FFFFFF', borda: '#E3DFD6', linha: '#EEEAE2', texto: '#1C1A16', suave: '#5F5A50', apagado: '#8F8A80', ambar: '#B86E00', violeta: '#6A55E0', verde: '#1F8F5F', sobreAmbar: '#FFFFFF' },
 };
-
 const fonte = (nome, arquivo) => `@font-face{font-family:'${nome}';src:url(data:font/woff2;base64,${readFileSync(`ferramentas/fontes/${arquivo}`).toString('base64')}) format('woff2')}`;
-const FONTES = {
-  cinzel: fonte('Cinzel', 'cinzel.woff2'),
-  garamond: fonte('Garamond', 'garamond.woff2'),
-  italico: fonte('GaramondI', 'garamond-italico.woff2'),
-  mono: fonte('Mono', 'mono.woff2'),
-};
+const FONTES = fonte('Mono', 'mono.woff2') + fonte('MonoB', 'mono-bold.woff2');
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const CW = 0.6; // largura de um caractere da JetBrains Mono, em em
 
-function painel(nome, altura, corpo, { fontes = [], estilo = '', titulo = '' } = {}) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${L}" height="${altura}" viewBox="0 0 ${L} ${altura}" role="img" aria-label="${esc(titulo)}">
+// Cada cartão é uma função (tema) => { altura, corpo, estilo }; grava as duas versões.
+function gravar(nome, titulo, desenhar) {
+  for (const [id, T] of Object.entries(TEMAS)) {
+    const { altura, corpo, estilo = '', moldura = true } = desenhar(T);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${L}" height="${altura}" viewBox="0 0 ${L} ${altura}" role="img" aria-label="${esc(titulo)}">
 <title>${esc(titulo)}</title>
-<style>${fontes.map((f) => FONTES[f]).join('')}
-.mono{font-family:'Mono',monospace;white-space:pre}.cinzel{font-family:'Cinzel',serif}.gar{font-family:'Garamond',serif}.ita{font-family:'GaramondI',serif;font-style:italic}
+<style>${FONTES}
+text{font-family:'Mono',monospace;white-space:pre}.b{font-family:'MonoB',monospace}
+.cursor{animation:piscar 1s steps(1) infinite}@keyframes piscar{50%{opacity:0}}
 ${estilo}</style>
-<defs>
-<filter id="grao" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .84  0 0 0 0 .8  0 0 0 0 .69  0 0 0 .07 0"/></filter>
-<radialGradient id="vinheta" cx=".5" cy=".45" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
-</defs>
-<rect width="${L}" height="${altura}" rx="4" fill="${C.painel}"/>
-<rect width="${L}" height="${altura}" rx="4" filter="url(#grao)"/>
+${moldura ? `<rect x=".5" y=".5" width="${L - 1}" height="${altura - 1}" rx="10" fill="${T.painel}" stroke="${T.borda}"/>` : ''}
 ${corpo}
-<rect width="${L}" height="${altura}" rx="4" fill="url(#vinheta)" pointer-events="none"/>
-<rect x=".5" y=".5" width="${L - 1}" height="${altura - 1}" rx="4" fill="none" stroke="${C.borda}"/>
-<rect x="6.5" y="6.5" width="${L - 13}" height="${altura - 13}" fill="none" stroke="${C.bordaInterna}"/>
-${[[6.5, 6.5], [L - 6.5, 6.5], [6.5, altura - 6.5], [L - 6.5, altura - 6.5]].map(([x, y]) => `<path d="M${x} ${y - 4}l4 4l-4 4l-4 -4Z" fill="${C.bronze}"/>`).join('')}
 </svg>`;
-  writeFileSync(`assets/${nome}.svg`, svg);
-  console.log(`assets/${nome}.svg`, Math.round(svg.length / 1024), 'KB');
+    writeFileSync(`assets/${nome}-${id}.svg`, svg);
+  }
+  console.log(`assets/${nome}`);
 }
 
-// Texto monoespaçado em trechos coloridos: [[cor, texto], ...]
-const trechos = (lista) => lista.map(([cor, t]) => `<tspan fill="${cor}">${esc(t)}</tspan>`).join('');
+// Palavras que aparecem uma a uma, como uma resposta em streaming.
+function stream(x, y, texto, { tamanho = 15, cor, inicio = 0, passo = 0.06, classe = '' } = {}) {
+  const palavras = texto.split(' ');
+  return `<text x="${x}" y="${y}" font-size="${tamanho}" fill="${cor}" class="${classe}">${palavras.map((p, i) => `<tspan class="w" style="animation-delay:${(inicio + i * passo).toFixed(2)}s">${esc(p)}${i < palavras.length - 1 ? ' ' : ''}</tspan>`).join('')}</text>`;
+}
+const ESTILO_STREAM = `.w{opacity:0;animation:aparecer .01s linear forwards}@keyframes aparecer{to{opacity:1}}`;
+
+function chip(x, y, texto, T, { cor = T.ambar, cheio = false, tamanho = 11 } = {}) {
+  const w = texto.length * tamanho * CW + 14;
+  return { w, svg: `<rect x="${x}" y="${y - tamanho - 3}" width="${w.toFixed(1)}" height="${tamanho + 9}" rx="4" fill="${cheio ? cor : 'none'}" stroke="${cor}" stroke-opacity="${cheio ? 1 : 0.6}"/><text x="${x + 7}" y="${y}" font-size="${tamanho}" fill="${cheio ? T.sobreAmbar : cor}">${esc(texto)}</text>` };
+}
+
+function quebrar(texto, largura) {
+  const linhas = [];
+  let atual = '';
+  for (const p of texto.split(' ')) {
+    if ((atual + ' ' + p).trim().length > largura) { linhas.push(atual); atual = p; } else atual = (atual + ' ' + p).trim();
+  }
+  if (atual) linhas.push(atual);
+  return linhas;
+}
 
 // ---------- dados ----------
 async function gql(query, variables = {}) {
@@ -113,227 +124,197 @@ const IGNORAR = new Set(['HTML', 'CSS', 'SCSS', 'Shell', 'PowerShell', 'Batchfil
 const linguagens = { ...forja.linguagens };
 for (const [n, s] of Object.entries(guilda.linguagens ?? {})) linguagens[n] = (linguagens[n] ?? 0) + s;
 
-// Últimos 12 meses das duas contas, dia a dia.
 const hoje = new Date(Date.now() + FUSO * 36e5);
 const fim = new Date(Date.UTC(hoje.getUTCFullYear(), hoje.getUTCMonth(), hoje.getUTCDate()));
 const ano = [];
 for (let t = fim.getTime() - 364 * 864e5; t <= fim.getTime(); t += 864e5) {
   const data = new Date(t).toISOString().slice(0, 10);
-  ano.push({ data, forja: forja.dias[data] ?? 0, guilda: guilda.dias[data] ?? 0 });
+  ano.push({ data, pessoal: forja.dias[data] ?? 0, estagio: guilda.dias[data] ?? 0 });
 }
-const somaForja = ano.reduce((s, d) => s + d.forja, 0);
-const somaGuilda = ano.reduce((s, d) => s + d.guilda, 0);
+const somaPessoal = ano.reduce((s, d) => s + d.pessoal, 0);
+const somaEstagio = ano.reduce((s, d) => s + d.estagio, 0);
 let melhor = 0, seq = 0;
-for (const d of ano) { seq = d.forja + d.guilda ? seq + 1 : 0; melhor = Math.max(melhor, seq); }
-let atual = 0;
-for (let i = ano.length - 1; i >= 0; i--) {
-  if (ano[i].forja + ano[i].guilda) atual++;
-  else if (i < ano.length - 1) break;
-}
-const ativos = ano.filter((d) => d.forja + d.guilda).length;
-const pico = Math.max(...ano.map((d) => d.forja + d.guilda));
+for (const d of ano) { seq = d.pessoal + d.estagio ? seq + 1 : 0; melhor = Math.max(melhor, seq); }
+const ativos = ano.filter((d) => d.pessoal + d.estagio).length;
 
-// ---------- banner: cena em ASCII e o título ----------
-function banner() {
-  const arte = JSON.parse(readFileSync('dados/banner.json', 'utf8'));
-  const CORES = { ceu: C.fundo, estrela: '#5d5649', lua: '#ddd1b2', colina: '#3a342b', ruinas: '#5a5144', penhasco: '#5f5240', figura: '#c9b994', espada: '#9d9a91', corvo: '#8a8170', brasa: C.brasa };
-  const fs = 800 / (arte.cols * 0.6), lh = fs * 1.2, y0 = 34;
-  const linhas = arte.linhas.map((l, i) => `<text x="20" y="${(y0 + i * lh).toFixed(1)}" class="mono" font-size="${fs.toFixed(3)}">${l.map(([cor, t]) => cor === 'brasa' ? `<tspan fill="${CORES.brasa}" class="brasa" style="animation-delay:${((i * 7) % 23) / 10}s">${esc(t)}</tspan>` : `<tspan fill="${CORES[cor]}">${esc(t)}</tspan>`).join('')}</text>`).join('\n');
-  const yt = y0 + arte.linhas.length * lh + 30;
-  const corpo = `${linhas}
-<line x1="80" y1="${yt}" x2="${L / 2 - 30}" y2="${yt}" stroke="${C.borda}"/><line x1="${L / 2 + 30}" y1="${yt}" x2="${L - 80}" y2="${yt}" stroke="${C.borda}"/>
-<text x="${L / 2}" y="${yt + 5}" class="gar" font-size="16" fill="${C.bronze}" text-anchor="middle">†</text>
-<text x="${L / 2}" y="${yt + 50}" class="cinzel" font-size="40" letter-spacing="10" fill="${C.osso}" text-anchor="middle">SAULO COSTA</text>
-<text x="${L / 2}" y="${yt + 82}" class="ita" font-size="18" fill="${C.ossoEscuro}" text-anchor="middle">Forjador de automações, agentes e ferramentas internas, do protótipo ao deploy.</text>
-<text x="${L / 2}" y="${yt + 108}" class="cinzel" font-size="11" letter-spacing="3" fill="${C.cinza}" text-anchor="middle">ENGENHARIA DE COMPUTAÇÃO · UFPB · JOÃO PESSOA</text>`;
-  painel('banner', Math.round(yt + 134), corpo, {
-    fontes: ['mono', 'cinzel', 'italico', 'garamond'],
-    titulo: 'Saulo Costa: forjador de automações, agentes e ferramentas internas, do protótipo ao deploy. Engenharia de Computação, UFPB, João Pessoa.',
-    estilo: `.brasa{animation:brasa 2.6s ease-in-out infinite}@keyframes brasa{0%,100%{opacity:.2}50%{opacity:1}}`,
+// ---------- hero: a pergunta, a resposta e o espaço de embeddings ----------
+function hero() {
+  gravar('hero', 'Contexto: Saulo Costa. Pergunta: quem é o saulo costa? Resposta: constrói agentes de IA, automações e ferramentas internas, do protótipo ao deploy; Engenharia de Computação na UFPB, conclusão prevista em 2027, João Pessoa. Fontes: Sagaz, Nexo, Oluasin, Neolis. Ao lado, um espaço de embeddings em que a pergunta acende os 5 vizinhos mais próximos.', (T) => {
+    const q = chip(36, 50, 'query', T);
+    const fontesX = [36];
+    const fontes = ['fontes', 'sagaz', 'nexo', 'oluasin', 'neolis'].map((f, i) => {
+      const c = chip(fontesX[i], 318, f, T, i === 0 ? { cor: T.verde, cheio: true } : { cor: T.suave });
+      fontesX.push(fontesX[i] + c.w + 8);
+      return c.svg;
+    }).join('');
+    const c1 = chip(338, 196, '01', T, { tamanho: 10 }), c2 = chip(372, 196, '02', T, { tamanho: 10 }), c3 = chip(294, 268, '03', T, { tamanho: 10 });
+
+    // Espaço de embeddings: agrupamentos fixos, a consulta e os 5 vizinhos mais próximos.
+    const ex = 520, ey = 40, ew = 284, eh = 300;
+    let s = 11;
+    const rnd = () => ((s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296);
+    const grupos = [['claude · mcp', 110, 90], ['playwright · robôs', 210, 70], ['electron · webrtc', 70, 210], ['postgres · dbt', 190, 230], ['fastapi · flask', 230, 150]];
+    const pontos = [];
+    for (const [rot, gx, gy] of grupos) for (let i = 0; i < 9; i++) pontos.push({ x: gx + (rnd() - 0.5) * 70, y: gy + (rnd() - 0.5) * 50, rot });
+    const consulta = { x: 150, y: 140 };
+    const vizinhos = [...pontos].sort((a, b) => Math.hypot(a.x - consulta.x, a.y - consulta.y) - Math.hypot(b.x - consulta.x, b.y - consulta.y)).slice(0, 5);
+    const pts = pontos.map((p) => `<circle cx="${(ex + p.x).toFixed(1)}" cy="${(ey + p.y).toFixed(1)}" r="${vizinhos.includes(p) ? 3.6 : 2.4}" fill="${vizinhos.includes(p) ? T.ambar : T.apagado}"/>`).join('');
+    const linhas = vizinhos.map((p, i) => `<line x1="${ex + consulta.x}" y1="${ey + consulta.y}" x2="${(ex + p.x).toFixed(1)}" y2="${(ey + p.y).toFixed(1)}" stroke="${T.ambar}" stroke-width="1.2" class="traco" style="animation-delay:${(2.2 + i * 0.15).toFixed(2)}s"/>`).join('');
+    const rotulos = grupos.map(([rot, gx, gy]) => `<text x="${ex + gx}" y="${ey + gy + 38}" font-size="9.5" fill="${T.apagado}" text-anchor="middle">${rot}</text>`).join('');
+    const corpo = `
+${q.svg}<text x="${36 + q.w + 12}" y="50" font-size="15" fill="${T.texto}">"quem é o saulo costa?"</text>
+<text x="34" y="122" font-size="54" class="b" fill="${T.texto}">Saulo Costa</text>
+${stream(36, 172, 'Constrói agentes de IA, automações e', { cor: T.texto, inicio: 0.6 })}
+${stream(36, 196, 'ferramentas internas, do', { cor: T.texto, inicio: 0.96 })}<text x="264" y="196" font-size="15" fill="${T.texto}" class="w" style="animation-delay:1.14s">deploy.</text>
+${c1.svg.replace('<rect', '<rect class="w" style="animation-delay:1.3s"').replace('<text', '<text class="w" style="animation-delay:1.3s"')}${c2.svg.replace('<rect', '<rect class="w" style="animation-delay:1.36s"').replace('<text', '<text class="w" style="animation-delay:1.36s"')}
+<text x="36" y="244" font-size="13" fill="${T.suave}">Engenharia de Computação · UFPB</text>
+<text x="36" y="268" font-size="13" fill="${T.suave}">conclusão em 2027 · João Pessoa</text>${c3.svg}
+${fontes}
+<text x="36" y="372" font-size="18" fill="${T.ambar}" class="cursor">&gt;</text>
+<rect x="${ex - 16}" y="${ey - 16}" width="${ew + 32}" height="${eh + 32}" rx="8" fill="none" stroke="${T.linha}"/>
+<text x="${ex}" y="${ey + 6}" font-size="10" fill="${T.apagado}" letter-spacing="1.5">ESPAÇO DE EMBEDDINGS</text>
+<text x="${ex + ew}" y="${ey + 6}" font-size="10" fill="${T.ambar}" text-anchor="end">top-k = 5</text>
+${pts}${linhas}${rotulos}
+<circle cx="${ex + consulta.x}" cy="${ey + consulta.y}" r="5" fill="${T.ambar}"/>
+<circle cx="${ex + consulta.x}" cy="${ey + consulta.y}" r="5" fill="none" stroke="${T.ambar}" class="anel"/>`;
+    return {
+      altura: 400, corpo, moldura: false,
+      estilo: `${ESTILO_STREAM}
+.traco{stroke-dasharray:200;stroke-dashoffset:200;animation:tracar .6s ease-out forwards}@keyframes tracar{to{stroke-dashoffset:0}}
+.anel{transform-box:fill-box;transform-origin:center;animation:anel 2.4s ease-out infinite}@keyframes anel{from{transform:scale(1);opacity:.9}to{transform:scale(4);opacity:0}}`,
+    };
   });
 }
 
-// ---------- títulos de capítulo ----------
-function capitulo(nome, numeral, titulo, subtitulo) {
-  const texto = `${numeral} · ${titulo.toUpperCase()}`;
-  const meia = texto.length * 8.6;
-  const corpo = `
-<line x1="40" y1="34" x2="${L / 2 - meia - 18}" y2="34" stroke="${C.borda}"/><line x1="${L / 2 + meia + 18}" y1="34" x2="${L - 40}" y2="34" stroke="${C.borda}"/>
-<path d="M${L / 2 - meia - 14} 30l4 4l-4 4l-4 -4Z" fill="${C.bronze}"/><path d="M${L / 2 + meia + 14} 30l4 4l-4 4l-4 -4Z" fill="${C.bronze}"/>
-<text x="${L / 2}" y="41" class="cinzel" font-size="20" letter-spacing="4" fill="${C.osso}" text-anchor="middle">${esc(texto)}</text>
-<text x="${L / 2}" y="64" class="ita" font-size="14" fill="${C.cinza}" text-anchor="middle">${esc(subtitulo)}</text>`;
-  painel(nome, 82, corpo, { fontes: ['cinzel', 'italico'], titulo: texto });
-}
-
-// ---------- I · juramento (descrição de item) ----------
-function juramento() {
-  const lore = [
-    'Estudante de Engenharia de Computação na UFPB e estagiário de desenvolvimento em João Pessoa.',
-    'Dizem que forja autômatos que trabalham enquanto o escritório dorme, e agentes que leem os',
-    'arquivos antigos da guilda sem jamais reescrevê-los.',
-  ];
-  const linhas = [
-    ['GUILDA', 'Virtus Consultoria · estágio em desenvolvimento e automação'],
-    ['ORDEM', 'PET-Saúde UFPB / SUS-PB · saúde digital'],
-    ['FORJA', 'Oluasin · app local-first, em piloto com colegas'],
-    ['GRIMÓRIO', 'sauloscm.github.io · demonstrações com dados fictícios'],
-  ];
-  const corpo = `
-<text x="44" y="52" class="cinzel" font-size="20" letter-spacing="2" fill="${C.osso}">Saulo Costa</text>
-<text x="44" y="74" class="ita" font-size="15" fill="${C.cinza}">aprendiz de engenheiro, portador da pena e do teclado</text>
-<line x1="44" y1="90" x2="${L - 44}" y2="90" stroke="${C.bordaInterna}"/>
-${lore.map((t, i) => `<text x="44" y="${120 + i * 24}" class="ita" font-size="17" fill="${C.ossoEscuro}">${esc(t)}</text>`).join('\n')}
-<line x1="44" y1="${120 + lore.length * 24}" x2="${L - 44}" y2="${120 + lore.length * 24}" stroke="${C.bordaInterna}"/>
-${linhas.map(([r, v], i) => {
-    const y = 120 + lore.length * 24 + 34 + i * 28;
-    return `<text x="44" y="${y}" class="cinzel" font-size="12" letter-spacing="2.5" fill="${C.bronze}">${r}</text><text x="170" y="${y}" class="gar" font-size="17" fill="${C.osso}">${esc(v)}</text>`;
-  }).join('\n')}`;
-  painel('juramento', 120 + lore.length * 24 + 34 + linhas.length * 28 + 10, corpo, {
-    fontes: ['cinzel', 'garamond', 'italico'],
-    titulo: 'Saulo Costa, estudante de Engenharia de Computação na UFPB e estagiário de desenvolvimento em João Pessoa. Guilda: Virtus Consultoria. Ordem: PET-Saúde UFPB/SUS-PB. Forja: Oluasin. Grimório: sauloscm.github.io.',
-  });
-}
-
-// ---------- II · feitos (tela de atributos) ----------
-function feitos() {
+// ---------- impacto: quatro números, cada um com sua fonte ----------
+function impacto() {
   const itens = [
-    ['Nível', String(somaForja + somaGuilda)],
-    ['Autômatos em serviço', '7+'],
-    ['Tabelas sob o agente', '~5.000'],
-    ['Provações do teste e2e', '60+'],
-    ['Dias junto à fogueira', String(ativos)],
-    ['Maior sequência', `${melhor} dias`],
+    ['7+', 'automações em produção', 'fonte · central de automações do estágio'],
+    ['~5.000', 'tabelas ao alcance do agente', 'fonte · sagaz, warehouse em duckdb e dbt'],
+    ['60+', 'etapas no teste de ponta a ponta', 'fonte · oluasin, dois PCs simulados'],
+    [String(somaPessoal + somaEstagio), 'contribuições em 12 meses', 'fonte · github, conta pessoal + estágio'],
   ];
-  const col = (L - 88 - 40) / 2;
-  const corpo = itens.map(([r, v], i) => {
-    const x = 44 + (i % 2) * (col + 40), y = 56 + Math.floor(i / 2) * 40;
-    return `<text x="${x}" y="${y}" class="gar" font-size="18" fill="${C.ossoEscuro}">${esc(r)}</text>
-<line x1="${x + r.length * 8.4 + 10}" y1="${y - 4}" x2="${x + col - v.length * 12 - 14}" y2="${y - 4}" stroke="${C.apagado}" stroke-dasharray="1 5"/>
-<text x="${x + col}" y="${y}" class="cinzel" font-size="20" fill="${C.osso}" text-anchor="end">${esc(v)}</text>`;
-  }).join('\n') + `
-<text x="44" y="${56 + 3 * 40 + 4}" class="ita" font-size="14" fill="${C.cinza}">o nível são as contribuições dos últimos 12 meses, somando a conta pessoal e a do estágio.</text>`;
-  painel('feitos', 56 + 3 * 40 + 28, corpo, { fontes: ['cinzel', 'garamond', 'italico'], titulo: itens.map(([r, v]) => `${r}: ${v}`).join('; ') });
+  gravar('impacto', 'Impacto: ' + itens.map(([n, t]) => `${n} ${t}`).join('; '), (T) => {
+    const corpo = `<rect x="28" y="30" width="8" height="8" fill="${T.ambar}"/><text x="44" y="38" font-size="11" fill="${T.ambar}" letter-spacing="3">IMPACTO</text>
+<text x="${L - 28}" y="38" font-size="11" fill="${T.apagado}" text-anchor="end">cada número aponta para uma fonte</text>
+<line x1="${L / 2}" y1="62" x2="${L / 2}" y2="254" stroke="${T.linha}"/><line x1="28" y1="158" x2="${L - 28}" y2="158" stroke="${T.linha}"/>
+${itens.map(([n, t, f], i) => {
+      const x = 28 + (i % 2) * (L / 2), y = 112 + Math.floor(i / 2) * 96;
+      return `<text x="${x}" y="${y}" font-size="44" class="b" fill="${T.texto}">${esc(n)}</text><text x="${x}" y="${y + 22}" font-size="13" fill="${T.texto}">${esc(t)}</text><text x="${x}" y="${y + 40}" font-size="11" fill="${T.apagado}">${esc(f)}</text>`;
+    }).join('\n')}`;
+    return { altura: 278, corpo };
+  });
 }
 
-// ---------- III · o arsenal (inventário) ----------
-function arsenal() {
-  const grupos = [
-    ['ARMAS', 'Python · TypeScript · JavaScript · SQL · Rust · C++'],
-    ['CATALISADORES', 'API do Claude · agentes com ferramentas · MCP · avaliação de LLMs'],
-    ['FERRAMENTAS', 'Playwright · pandas · DuckDB · dbt · FastAPI · Flask · React · Electron'],
-    ['FORTIFICAÇÕES', 'Docker · PostgreSQL · SQLite · Cloudflare Workers · GitHub Actions · WebRTC'],
-  ];
-  const corpo = grupos.map(([r, v], i) => {
-    const y = 52 + i * 38;
-    return `<text x="44" y="${y}" class="cinzel" font-size="12" letter-spacing="2.5" fill="${C.bronze}">${r}</text><text x="210" y="${y}" class="gar" font-size="17" fill="${C.osso}">${esc(v)}</text>${i < grupos.length - 1 ? `<line x1="44" y1="${y + 16}" x2="${L - 44}" y2="${y + 16}" stroke="${C.bordaInterna}"/>` : ''}`;
-  }).join('\n');
-  painel('arsenal', 52 + grupos.length * 38, corpo, { fontes: ['cinzel', 'garamond'], titulo: grupos.map(([r, v]) => `${r}: ${v}`).join('. ') });
+// ---------- divisor ----------
+function divisor() {
+  gravar('divisor', '', (T) => {
+    const n = 9, w = 34, g = 8, x0 = (L - (n * w + (n - 1) * g)) / 2;
+    const corpo = Array.from({ length: n }, (_, i) => `<rect x="${x0 + i * (w + g)}" y="10" width="${w}" height="3" rx="1.5" fill="${i === 4 ? T.ambar : T.borda}"/>`).join('');
+    return { altura: 24, corpo, moldura: false };
+  });
 }
 
-// ---------- IV · crônicas: calendário em ASCII das duas contas ----------
-function cronicas() {
-  const SEMANAS = 26;
+// ---------- terminal: um comando e a saída aparecendo linha a linha ----------
+// linhas: array de strings ou de trechos [[cor, texto], ...]; cores por nome do tema.
+function terminal(nome, titulo, comando, linhas) {
+  gravar(nome, titulo, (T) => {
+    const y0 = 76, lh = 21;
+    const cor = (c) => T[c] ?? c;
+    const saida = linhas.map((l, i) => {
+      const trechos = typeof l === 'string' ? [['texto', l]] : l;
+      return `<text x="28" y="${y0 + 26 + i * lh}" font-size="13" class="w" style="animation-delay:${(1.1 + i * 0.08).toFixed(2)}s">${trechos.map(([c, t]) => `<tspan fill="${cor(c)}"${c === 'ambar' && t.startsWith('#') ? ' class="b"' : ''}>${esc(t)}</tspan>`).join('')}</text>`;
+    }).join('\n');
+    const larguraCmd = (comando.length + 1) * 13 * CW;
+    const prompt = 'saulo@contexto:~$ ';
+    const xp = 28 + prompt.length * 13 * CW;
+    const altura = y0 + 26 + linhas.length * lh + 24;
+    const corpo = `<line x1="1" y1="40" x2="${L - 1}" y2="40" stroke="${T.borda}"/>
+<text x="${L / 2}" y="25" font-size="11" fill="${T.apagado}" text-anchor="middle">saulo@contexto: ~</text><text x="${L - 24}" y="25" font-size="13" fill="${T.apagado}">×</text>
+<text x="28" y="${y0}" font-size="13"><tspan fill="${T.verde}" class="b">${prompt}</tspan></text>
+<clipPath id="digitar"><rect x="${xp}" y="${y0 - 14}" height="20" class="digitando" width="0"/></clipPath>
+<text x="${xp}" y="${y0}" font-size="13" fill="${T.texto}" clip-path="url(#digitar)">${esc(comando)}</text>
+${saida}
+<text x="28" y="${altura - 20}" font-size="13" class="w" style="animation-delay:${(1.2 + linhas.length * 0.08).toFixed(2)}s"><tspan fill="${T.verde}" class="b">${prompt}</tspan><tspan fill="${T.ambar}" class="cursor">▋</tspan></text>`;
+    return {
+      altura, corpo,
+      estilo: `${ESTILO_STREAM}.digitando{animation:digitar .9s steps(${comando.length}) .1s forwards}@keyframes digitar{to{width:${larguraCmd.toFixed(1)}px}}`,
+    };
+  });
+}
+
+// ---------- pipeline de um projeto ----------
+function pipeline(nome, rotulo, etapas, nota) {
+  gravar(nome, `${rotulo}: ${etapas.map(([t, s]) => `${t} (${s})`).join(', ')}. ${nota}`, (T) => {
+    const n = etapas.length, g = 26, w = (L - 56 - (n - 1) * g) / n, y = 58, h = 62;
+    const caixas = etapas.map(([t, s], i) => {
+      const x = 28 + i * (w + g);
+      const destaque = i === n - 1 ? T.ambar : i === Math.floor(n / 2) ? T.violeta : T.borda;
+      const seta = i < n - 1 ? `<line x1="${x + w + 3}" y1="${y + h / 2}" x2="${x + w + g - 5}" y2="${y + h / 2}" stroke="${T.ambar}" stroke-width="1.4" stroke-dasharray="3 3" class="fluxo"/><path d="M${x + w + g - 6} ${y + h / 2 - 4}l5 4l-5 4" fill="none" stroke="${T.ambar}" stroke-width="1.4"/>` : '';
+      return `<rect x="${x}" y="${y}" width="${w.toFixed(1)}" height="${h}" rx="6" fill="${T.fundo}" stroke="${destaque}"/>
+<text x="${(x + w / 2).toFixed(1)}" y="${y + 26}" font-size="12.5" class="b" fill="${T.texto}" text-anchor="middle">${esc(t)}</text>
+<text x="${(x + w / 2).toFixed(1)}" y="${y + 45}" font-size="10" fill="${T.apagado}" text-anchor="middle">${esc(s)}</text>${seta}`;
+    }).join('\n');
+    const corpo = `<rect x="28" y="24" width="8" height="8" fill="${T.ambar}"/><text x="44" y="32" font-size="11" fill="${T.ambar}" letter-spacing="3">${esc(rotulo.toUpperCase())}</text>
+${caixas}
+<text x="${L / 2}" y="${y + h + 30}" font-size="11" fill="${T.apagado}" text-anchor="middle">${esc(nota)}</text>`;
+    return { altura: y + h + 48, corpo, estilo: `.fluxo{animation:fluxo 1s linear infinite}@keyframes fluxo{to{stroke-dashoffset:-12}}` };
+  });
+}
+
+// ---------- telemetria: as duas contas no mesmo calendário, hábitos e linguagens ----------
+function telemetria() {
+  const SEMANAS = 30;
   const inicio = new Date(fim.getTime() - ((SEMANAS - 1) * 7 + fim.getUTCDay()) * 864e5);
   const porData = Object.fromEntries(ano.map((d) => [d.data, d]));
-  const dias = [];
-  for (let t = inicio.getTime(); t <= fim.getTime(); t += 864e5) dias.push(porData[new Date(t).toISOString().slice(0, 10)] ?? { forja: 0, guilda: 0, data: new Date(t).toISOString().slice(0, 10) });
-  const max = Math.max(1, ...dias.map((d) => d.forja + d.guilda));
-  const fs = 15, cw = fs * 0.6, lh = 19, x0 = 92, y0 = 84;
-  const ROT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-  let grade = '';
-  for (let dia = 0; dia < 7; dia++) {
-    const partes = [];
-    for (let s = 0; s < SEMANAS; s++) {
-      const d = dias[s * 7 + dia];
-      if (!d) { partes.push([C.fundo, '  ']); continue; }
-      const t = d.forja + d.guilda;
-      if (!t) { partes.push([C.apagado, '· ']); continue; }
-      const nivel = Math.min(3, Math.floor((t / max) * 4));
-      partes.push([d.guilda > d.forja ? C.brasa : C.osso, '░▒▓█'[nivel] + ' ']);
-    }
-    grade += `<text x="44" y="${y0 + dia * lh}" class="gar" font-size="13" fill="${C.cinza}">${ROT[dia]}</text><text x="${x0}" y="${y0 + dia * lh}" class="mono" font-size="${fs}">${trechos(partes)}</text>\n`;
-  }
-  const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-  let meses = '', ultimo = -1;
-  for (let s = 0; s < SEMANAS; s++) {
-    const m = new Date(inicio.getTime() + s * 7 * 864e5).getUTCMonth();
-    if (m !== ultimo) { meses += `<text x="${x0 + s * 2 * cw}" y="${y0 - 24}" class="cinzel" font-size="10" letter-spacing="1" fill="${C.cinza}">${MESES[m].toUpperCase()}</text>`; ultimo = m; }
-  }
-  const st = [
-    ['conta pessoal', String(somaForja), C.osso],
-    ['conta do estágio', String(somaGuilda), C.brasa],
-    ['dia mais intenso', String(pico), C.osso],
-    ['sequência atual', `${atual} ${atual === 1 ? 'dia' : 'dias'}`, C.osso],
-  ];
-  const xs = x0 + SEMANAS * 2 * cw + 40;
-  const lado = st.map(([r, v, cor], i) => `<text x="${xs}" y="${y0 + 8 + i * 30}" class="ita" font-size="15" fill="${C.ossoEscuro}">${esc(r)}</text><text x="${L - 44}" y="${y0 + 8 + i * 30}" class="cinzel" font-size="17" fill="${cor}" text-anchor="end">${esc(v)}</text>`).join('');
-  const yl = y0 + 7 * lh + 22;
-  const corpo = `<text x="44" y="38" class="ita" font-size="15" fill="${C.cinza}">últimas ${SEMANAS} semanas, as duas contas na mesma página do diário</text>
-${meses}${grade}
-<line x1="${xs - 20}" y1="${y0 - 14}" x2="${xs - 20}" y2="${y0 + 6 * lh}" stroke="${C.bordaInterna}"/>
-${lado}
-<text x="44" y="${yl}" class="mono" font-size="14">${trechos([[C.osso, '█'], [C.ossoEscuro, ' ']])}</text><text x="64" y="${yl}" class="gar" font-size="15" fill="${C.ossoEscuro}">mais da conta pessoal (sauloscm)</text>
-<text x="320" y="${yl}" class="mono" font-size="14">${trechos([[C.brasa, '█']])}</text><text x="340" y="${yl}" class="gar" font-size="15" fill="${C.ossoEscuro}">mais da conta do estágio (saulocmvirtus)</text>
-<text x="${L - 44}" y="${yl}" class="mono" font-size="13" fill="${C.cinza}" text-anchor="end">· ░ ▒ ▓ █</text>`;
-  painel('cronicas', yl + 30, corpo, {
-    fontes: ['mono', 'cinzel', 'garamond', 'italico'],
-    titulo: `Calendário das duas contas nas últimas ${SEMANAS} semanas. ${somaForja + somaGuilda} contribuições em 12 meses: ${somaForja} na conta pessoal e ${somaGuilda} na do estágio.`,
-  });
-}
-
-// ---------- IV · hábitos em ASCII ----------
-function habitos() {
+  const max = Math.max(1, ...ano.map((d) => d.pessoal + d.estagio));
   const horas = forja.horas.map((v, i) => [v, guilda.horas[i] ?? 0]);
-  const semana = forja.semana.map((v, i) => [v, guilda.semana[i] ?? 0]);
-  const ALT = 9, fs = 13, cw = fs * 0.6, lh = 12, x0 = 44, y0 = 74;
-  const max = Math.max(1, ...horas.map(([p, q]) => p + q));
-  const cols = horas.map(([p, q]) => {
-    const total = Math.round(((p + q) / max) * ALT);
-    const fp = p + q ? Math.round((p / (p + q)) * total) : 0;
-    return { fp: Math.max(fp, p ? 1 : 0), fq: Math.max(total - fp, q ? 1 : 0) };
-  });
-  let colunas = '';
-  for (let r = 0; r < ALT; r++) {
-    const nivel = ALT - r; // 9 no topo, 1 na base
-    const partes = cols.map(({ fp, fq }) => nivel <= fp ? [C.osso, '██ '] : nivel <= fp + fq ? [C.brasa, '▓▓ '] : [C.fundo, '   ']);
-    colunas += `<text x="${x0}" y="${y0 + r * lh}" class="mono" font-size="${fs}">${trechos(partes)}</text>`;
-  }
-  const rotHoras = horas.map((_, i) => String(i).padStart(2, '0') + ' ').join('');
-  const yh = y0 + ALT * lh + 6;
-  const maxS = Math.max(1, ...semana.map(([p, q]) => p + q));
-  const ROT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-  const ys = yh + 58;
-  const barras = semana.map(([p, q], i) => {
-    const np = Math.round((p / maxS) * 40), nq = Math.round((q / maxS) * 40);
-    return `<text x="44" y="${ys + i * 20}" class="gar" font-size="14" fill="${C.cinza}">${ROT[i]}</text><text x="92" y="${ys + i * 20}" class="mono" font-size="14">${trechos([[C.osso, '█'.repeat(np)], [C.brasa, '▓'.repeat(nq)], [C.cinza, ` ${p + q}`]])}</text>`;
-  }).join('\n');
-  const total = horas.reduce((s, [p, q]) => s + p + q, 0);
+  const maxH = Math.max(1, ...horas.map(([p, q]) => p + q));
+  const totalCommits = horas.reduce((s, [p, q]) => s + p + q, 0);
   const picoH = horas.map(([p, q], i) => [p + q, i]).sort((a, b) => b[0] - a[0])[0][1];
-  const corpo = `<text x="44" y="38" class="ita" font-size="15" fill="${C.cinza}">${total} commits em 12 meses, no horário de Brasília. A fogueira arde mais às ${String(picoH).padStart(2, '0')}h.</text>
-${colunas}
-<text x="${x0}" y="${yh + 8}" class="mono" font-size="${fs}" fill="${C.cinza}">${rotHoras}</text>
-<text x="44" y="${ys - 26}" class="cinzel" font-size="11" letter-spacing="2.5" fill="${C.bronze}">POR DIA DA SEMANA</text>
-${barras}
-<text x="${L - 44}" y="${ys + 6 * 20}" class="mono" font-size="14" text-anchor="end">${trechos([[C.osso, '█'], [C.ossoEscuro, ' pessoal   '], [C.brasa, '▓'], [C.ossoEscuro, ' estágio']])}</text>`;
-  painel('habitos', ys + 7 * 20 + 14, corpo, { fontes: ['mono', 'cinzel', 'garamond', 'italico'], titulo: `Hábitos de commit das duas contas: ${total} commits em 12 meses, pico às ${picoH}h.` });
-}
-
-// ---------- IV · línguas ----------
-function idiomas() {
   const lista = Object.entries(linguagens).filter(([n]) => !IGNORAR.has(n)).sort((x, y) => y[1] - x[1]);
-  const total = lista.reduce((s, [, v]) => s + v, 0);
-  const top = lista.slice(0, 6);
-  const LARG = 44;
-  const corpo = `<text x="44" y="38" class="ita" font-size="15" fill="${C.cinza}">línguas em que escrevo, por volume de código nas duas contas</text>
-` + top.map(([n, v], i) => {
-    const y = 72 + i * 26, k = Math.max(1, Math.round((v / total) * LARG));
-    return `<text x="44" y="${y}" class="gar" font-size="17" fill="${C.osso}">${esc(n)}</text><text x="200" y="${y}" class="mono" font-size="14">${trechos([[i === 0 ? C.osso : C.ossoEscuro, '█'.repeat(k)], [C.apagado, '░'.repeat(LARG - k)]])}</text><text x="${L - 44}" y="${y}" class="cinzel" font-size="14" fill="${C.ossoEscuro}" text-anchor="end">${((v / total) * 100).toFixed(1)}%</text>`;
-  }).join('\n');
-  painel('linguagens', 72 + top.length * 26 + 4, corpo, { fontes: ['mono', 'cinzel', 'garamond', 'italico'], titulo: 'Linguagens mais usadas: ' + top.map(([n, v]) => `${n} ${((v / total) * 100).toFixed(0)}%`).join(', ') });
+  const totalL = lista.reduce((s, [, v]) => s + v, 0);
+  const top = lista.slice(0, 5);
+  gravar('telemetria', `Telemetria das duas contas: ${somaPessoal + somaEstagio} contribuições em 12 meses (${somaPessoal} pessoais, ${somaEstagio} no estágio); maior sequência de ${melhor} dias; ${totalCommits} commits, pico às ${picoH}h; linguagens: ${top.map(([n, v]) => `${n} ${((v / totalL) * 100).toFixed(0)}%`).join(', ')}.`, (T) => {
+    const cel = 13, gap = 3, x0 = 28, y0 = 70;
+    let grade = '';
+    for (let s = 0; s < SEMANAS; s++) for (let d = 0; d < 7; d++) {
+      const t = inicio.getTime() + (s * 7 + d) * 864e5;
+      if (t > fim.getTime()) continue;
+      const dia = porData[new Date(t).toISOString().slice(0, 10)] ?? { pessoal: 0, estagio: 0 };
+      const total = dia.pessoal + dia.estagio;
+      const cor = !total ? T.linha : dia.estagio > dia.pessoal ? T.violeta : T.ambar;
+      const op = !total ? 1 : 0.35 + 0.65 * Math.min(1, total / (max * 0.6));
+      grade += `<rect x="${x0 + s * (cel + gap)}" y="${y0 + d * (cel + gap)}" width="${cel}" height="${cel}" rx="2.5" fill="${cor}" fill-opacity="${op.toFixed(2)}"/>`;
+    }
+    const xs = x0 + SEMANAS * (cel + gap) + 30;
+    const st = [['pessoal', somaPessoal, T.ambar], ['estágio', somaEstagio, T.violeta], ['dias ativos', ativos, T.texto], ['maior sequência', `${melhor} dias`, T.texto]];
+    const lado = st.map(([r, v, cor], i) => `<text x="${xs}" y="${y0 + 12 + i * 28}" font-size="12" fill="${T.apagado}">${r}</text><text x="${L - 28}" y="${y0 + 12 + i * 28}" font-size="14" class="b" fill="${cor}" text-anchor="end">${v}</text>`).join('');
+    const yh = y0 + 7 * (cel + gap) + 64, hh = 70, bw = (L - 56) / 24;
+    const barras = horas.map(([p, q], i) => {
+      const hp = (p / maxH) * hh, hq = (q / maxH) * hh, x = 28 + i * bw + 3;
+      return `${p ? `<rect x="${x.toFixed(1)}" y="${(yh + hh - hp).toFixed(1)}" width="${(bw - 6).toFixed(1)}" height="${hp.toFixed(1)}" rx="2" fill="${T.ambar}"/>` : ''}${q ? `<rect x="${x.toFixed(1)}" y="${(yh + hh - hp - hq - (p ? 2 : 0)).toFixed(1)}" width="${(bw - 6).toFixed(1)}" height="${hq.toFixed(1)}" rx="2" fill="${T.violeta}"/>` : ''}${!p && !q ? `<rect x="${x.toFixed(1)}" y="${yh + hh - 2}" width="${(bw - 6).toFixed(1)}" height="2" rx="1" fill="${T.linha}"/>` : ''}<text x="${(x + (bw - 6) / 2).toFixed(1)}" y="${yh + hh + 16}" font-size="9" fill="${T.apagado}" text-anchor="middle">${String(i).padStart(2, '0')}</text>`;
+    }).join('');
+    const yl = yh + hh + 64;
+    let xl = 28;
+    const PAL = [T.ambar, T.violeta, T.verde, T.suave, T.apagado];
+    const barraL = top.map(([, v], i) => { const w = ((L - 56) * v) / top.reduce((s, [, x]) => s + x, 0); const r = `<rect x="${xl.toFixed(1)}" y="${yl}" width="${Math.max(w - 3, 1).toFixed(1)}" height="8" rx="2" fill="${PAL[i]}"/>`; xl += w; return r; }).join('');
+    const legL = top.map(([n, v], i) => `<rect x="${28 + i * 162}" y="${yl + 24}" width="8" height="8" rx="2" fill="${PAL[i]}"/><text x="${42 + i * 162}" y="${yl + 32}" font-size="11.5" fill="${T.texto}">${esc(n)} <tspan fill="${T.apagado}">${((v / totalL) * 100).toFixed(0)}%</tspan></text>`).join('');
+    const titulo = (y, t, d) => `<rect x="28" y="${y - 8}" width="8" height="8" fill="${T.ambar}"/><text x="44" y="${y}" font-size="11" fill="${T.ambar}" letter-spacing="3">${t}</text><text x="${L - 28}" y="${y}" font-size="11" fill="${T.apagado}" text-anchor="end">${esc(d)}</text>`;
+    const corpo = `${titulo(38, 'CONTRIBUIÇÕES', `últimas ${SEMANAS} semanas · duas contas, uma pessoa`)}
+${grade}${lado}
+<rect x="${xs}" y="${y0 + 118}" width="9" height="9" rx="2" fill="${T.ambar}"/><text x="${xs + 15}" y="${y0 + 126}" font-size="11" fill="${T.suave}">sauloscm</text>
+<rect x="${xs + 100}" y="${y0 + 118}" width="9" height="9" rx="2" fill="${T.violeta}"/><text x="${xs + 115}" y="${y0 + 126}" font-size="11" fill="${T.suave}">saulocmvirtus</text>
+${titulo(yh - 22, 'HÁBITOS', `${totalCommits} commits · pico às ${String(picoH).padStart(2, '0')}h, horário de Brasília`)}
+${barras}
+${titulo(yl - 22, 'LINGUAGENS', 'por volume de código')}
+${barraL}${legL}`;
+    return { altura: yl + 56, corpo };
+  });
 }
 
-// ---------- V · o bardo (Spotify) ----------
-async function bardo() {
+// ---------- tocando por último (Spotify) ----------
+async function tocando() {
   const { SPOTIFY_CLIENT_ID: id, SPOTIFY_CLIENT_SECRET: segredo, SPOTIFY_REFRESH_TOKEN: refresh } = process.env;
   const faixas = [];
   if (id && segredo && refresh) {
@@ -357,47 +338,57 @@ async function bardo() {
     }
   }
   const corta = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
-  let corpo, altura;
-  if (faixas.length) {
-    const w = (L - 88 - 24) / 3;
-    corpo = `<defs><filter id="sepia"><feColorMatrix values=".39 .77 .19 0 0  .35 .69 .17 0 0  .27 .53 .13 0 0  0 0 0 1 0"/><feComponentTransfer><feFuncR type="linear" slope=".8"/><feFuncG type="linear" slope=".8"/><feFuncB type="linear" slope=".8"/></feComponentTransfer></filter></defs>
-<text x="44" y="38" class="ita" font-size="15" fill="${C.cinza}">o que o bardo tocou por último na taverna, via Spotify</text>` + faixas.map((f, i) => {
-      const x = 44 + i * (w + 12);
-      return `<rect x="${x}" y="54" width="${w}" height="70" fill="${C.fundo}" stroke="${C.bordaInterna}"/>
-${f.capa ? `<image x="${x + 9}" y="63" width="52" height="52" href="${f.capa}" filter="url(#sepia)"/><rect x="${x + 9}" y="63" width="52" height="52" fill="none" stroke="${C.borda}"/>` : ''}
-<text x="${x + 72}" y="86" class="ita" font-size="16" fill="${C.osso}">${esc(corta(f.nome, 20))}</text>
-<text x="${x + 72}" y="106" class="cinzel" font-size="10" letter-spacing="1" fill="${C.cinza}">${esc(corta(f.artista.toUpperCase(), 24))}</text>`;
+  gravar('tocando', faixas.length ? 'Ouvindo por último: ' + faixas.map((f) => `${f.nome}, de ${f.artista}`).join('; ') : 'Nenhuma música recente', (T) => {
+    const titulo = `<rect x="28" y="24" width="8" height="8" fill="${T.ambar}"/><text x="44" y="32" font-size="11" fill="${T.ambar}" letter-spacing="3">TOCANDO POR ÚLTIMO</text><text x="${L - 28}" y="32" font-size="11" fill="${T.apagado}" text-anchor="end">via spotify</text>`;
+    if (!faixas.length) return { altura: 90, corpo: `${titulo}<text x="28" y="66" font-size="13" fill="${T.apagado}">nada tocando agora.</text>` };
+    const w = (L - 56 - 24) / 3;
+    const corpo = titulo + faixas.map((f, i) => {
+      const x = 28 + i * (w + 12);
+      return `<rect x="${x}" y="50" width="${w.toFixed(1)}" height="64" rx="6" fill="${T.fundo}" stroke="${T.borda}"/>
+<clipPath id="capa${i}"><rect x="${x + 8}" y="58" width="48" height="48" rx="4"/></clipPath>
+${f.capa ? `<image x="${x + 8}" y="58" width="48" height="48" href="${f.capa}" clip-path="url(#capa${i})"/>` : ''}
+<text x="${x + 66}" y="78" font-size="12.5" class="b" fill="${T.texto}">${esc(corta(f.nome, 21))}</text>
+<text x="${x + 66}" y="97" font-size="11" fill="${T.apagado}">${esc(corta(f.artista, 23))}</text>`;
     }).join('');
-    altura = 146;
-  } else {
-    corpo = `<text x="${L / 2}" y="54" class="ita" font-size="16" fill="${C.cinza}" text-anchor="middle">O bardo descansa. Nenhuma canção recente na taverna.</text>`;
-    altura = 86;
-  }
-  painel('bardo', altura, corpo, {
-    fontes: ['cinzel', 'italico'],
-    titulo: faixas.length ? 'Ouvindo por último: ' + faixas.map((f) => `${f.nome}, de ${f.artista}`).join('; ') : 'Nenhuma música recente',
+    return { altura: 136, corpo };
   });
 }
 
-// ---------- divisor ----------
-function divisor() {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${L}" height="34" viewBox="0 0 ${L} 34" role="img" aria-label="">
-<line x1="120" y1="17" x2="${L / 2 - 24}" y2="17" stroke="${C.borda}"/><line x1="${L / 2 + 24}" y1="17" x2="${L - 120}" y2="17" stroke="${C.borda}"/>
-<path d="M${L / 2} 9l8 8l-8 8l-8 -8Z" fill="none" stroke="${C.bronze}"/><path d="M${L / 2} 14l3 3l-3 3l-3 -3Z" fill="${C.bronze}"/></svg>`;
-  writeFileSync('assets/divisor.svg', svg);
-}
-
-banner();
+// ---------- montagem ----------
+hero();
+impacto();
 divisor();
-capitulo('cap-1', 'I', 'O Juramento', 'quem empunha a pena');
-capitulo('cap-2', 'II', 'Feitos', 'atributos que posso provar');
-capitulo('cap-3', 'III', 'O Arsenal', 'o que carrego para a batalha');
-capitulo('cap-4', 'IV', 'Crônicas', 'duas contas, uma só pessoa');
-capitulo('cap-5', 'V', 'O Bardo', 'canções da taverna');
-juramento();
-feitos();
-arsenal();
-cronicas();
-habitos();
-idiomas();
-await bardo();
+terminal('term-system-prompt', 'Terminal. cat system_prompt.md. Sistema: você é Saulo Costa, estudante de Engenharia de Computação na UFPB, estagiário de desenvolvimento em João Pessoa. Regras: responder só com os trechos recuperados e citar a seção; sem dados de clientes, as demos usam dados fictícios.', 'cat system_prompt.md', [
+  [['ambar', '# system']],
+  ...quebrar('Você é Saulo Costa, estudante de Engenharia de Computação na UFPB (conclusão prevista em 2027) e estagiário de desenvolvimento em João Pessoa. Você coloca IA para trabalhar em produção: agentes que consultam dados com segurança, robôs que conferem cobranças venda a venda e sistemas que deixam os dados de cada equipe com ela. Três coisas que você entregou: Sagaz, Nexo e Oluasin.', 96),
+  '',
+  [['ambar', '# regras']],
+  ...quebrar('- responda só com os trechos recuperados e cite a seção, como [01];', 96),
+  ...quebrar('- se a resposta não estiver no contexto, diga isso em vez de adivinhar;', 96),
+  ...quebrar('- dados de clientes nunca entram no contexto: as demos usam dados fictícios.', 96),
+]);
+pipeline('pipeline-sagaz', 'sagaz · agente de dados', [['pergunta', 'em português'], ['catálogo', '~5.000 tabelas'], ['claude', 'ferramentas + memória'], ['sql', 'somente leitura'], ['resposta', 'com o sql que prova']], 'as mesmas ferramentas ficam expostas por um servidor MCP · custo de cada pergunta registrado');
+pipeline('pipeline-nexo', 'nexo · central de automações', [['login único', 'sessão por pessoa'], ['permissões', 'por automação'], ['containers', '7+ automações'], ['execuções', 'progresso ao vivo'], ['agendamento', 'rodadas sozinhas']], 'rede interna isolada · identidade passada por cabeçalho que o portal remove na entrada');
+pipeline('pipeline-oluasin', 'oluasin · app local-first', [['sqlite local', 'dados no PC'], ['sincronia', 'entre os PCs'], ['webrtc', 'voz e tela'], ['licenças', 'assinadas Ed25519'], ['atualização', 'assinada']], 'funciona offline · servidor de licenças nunca recebe o conteúdo das equipes');
+terminal('term-ingestion-log', 'Terminal. journalctl -u saulo --since 2023 --reverse. 2026-05, Virtus Consultoria, estagiário em desenvolvimento de software e automação. 2025, PET-Saúde UFPB/SUS-PB, pesquisador e desenvolvedor. 2023, Outlier, especialista em IA. UFPB, Engenharia de Computação, conclusão prevista em 2027.', 'journalctl -u saulo --since 2023 --reverse', [
+  [['apagado', '2026-05  '], ['ambar', 'Virtus Consultoria'], ['texto', ' · Estagiário em Desenvolvimento e Automação'], ['apagado', ' · mai 2026 → hoje']],
+  ...quebrar('central de automações com login único e 7+ automações em containers; robôs de extração e conciliação com Playwright e APIs; emissor de NFS-e no padrão nacional, com XML assinado por certificado digital; agente com a API do Claude sobre um warehouse em DuckDB e dbt.', 86).map((t) => [['apagado', '         '], ['suave', t]]),
+  '',
+  [['apagado', '2025     '], ['ambar', 'PET-Saúde UFPB / SUS-PB'], ['texto', ' · Pesquisador e Desenvolvedor'], ['apagado', ' · 2025 → hoje']],
+  ...quebrar('ciclo completo do Neolis, triagem neonatal para o SUS-PB: portal dos pais, onboarding com ambiente de treino, segurança e monitoramento, com Flask, PostgreSQL, Docker e GitHub Actions.', 86).map((t) => [['apagado', '         '], ['suave', t]]),
+  '',
+  [['apagado', '2023     '], ['ambar', 'Outlier'], ['texto', ' · Especialista em IA (freelance)'], ['apagado', ' · remoto']],
+  [['apagado', '         '], ['suave', 'prompts e avaliações de qualidade e segurança para treinar modelos de linguagem.']],
+  '',
+  [['apagado', '2027     '], ['ambar', 'UFPB'], ['texto', ' · Bacharelado em Engenharia de Computação'], ['apagado', ' · ainda indexando.']],
+]);
+telemetria();
+await tocando();
+terminal('term-endpoint', 'Terminal. curl sauloscm.github.io/contato. E-mail saulocm1@gmail.com, LinkedIn saulo-costa-ma, portfólio sauloscm.github.io, currículo sauloscm.github.io/curriculo.', 'curl -s sauloscm.github.io/contato', [
+  [['texto', '{']],
+  [['texto', '  '], ['violeta', '"email"'], ['texto', ': '], ['verde', '"saulocm1@gmail.com"'], ['texto', ',']],
+  [['texto', '  '], ['violeta', '"linkedin"'], ['texto', ': '], ['verde', '"linkedin.com/in/saulo-costa-ma"'], ['texto', ',']],
+  [['texto', '  '], ['violeta', '"portfolio"'], ['texto', ': '], ['verde', '"sauloscm.github.io"'], ['texto', ',']],
+  [['texto', '  '], ['violeta', '"curriculo"'], ['texto', ': '], ['verde', '"sauloscm.github.io/curriculo"']],
+  [['texto', '}']],
+]);
