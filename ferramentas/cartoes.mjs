@@ -13,8 +13,8 @@ mkdirSync('assets', { recursive: true });
 
 // ---------- temas ----------
 const TEMAS = {
-  dark: { fundo: '#15171B', painel: '#1B1E23', borda: '#2E323A', linha: '#262A31', texto: '#ECE9E3', suave: '#9A9DA6', apagado: '#6A6E77', ambar: '#F2A93B', violeta: '#A594FF', verde: '#5BD6A2', sobreAmbar: '#1A1408' },
-  light: { fundo: '#FBFAF7', painel: '#FFFFFF', borda: '#E3DFD6', linha: '#EEEAE2', texto: '#1C1A16', suave: '#5F5A50', apagado: '#8F8A80', ambar: '#B86E00', violeta: '#6A55E0', verde: '#1F8F5F', sobreAmbar: '#FFFFFF' },
+  dark: { fundo: '#15171B', painel: '#1B1E23', borda: '#2E323A', linha: '#262A31', texto: '#ECE9E3', suave: '#9A9DA6', apagado: '#6A6E77', ambar: '#F2A93B', violeta: '#A594FF', verde: '#5BD6A2', sobreAmbar: '#1A1408', bronze: '#B98A4A', azul: '#7C9CFF', rosa: '#E07AA8' },
+  light: { fundo: '#FBFAF7', painel: '#FFFFFF', borda: '#E3DFD6', linha: '#EEEAE2', texto: '#1C1A16', suave: '#5F5A50', apagado: '#8F8A80', ambar: '#B86E00', violeta: '#6A55E0', verde: '#1F8F5F', sobreAmbar: '#FFFFFF', bronze: '#9A6B22', azul: '#3F63D8', rosa: '#B8457A' },
 };
 const fonte = (nome, arquivo) => `@font-face{font-family:'${nome}';src:url(data:font/woff2;base64,${readFileSync(`ferramentas/fontes/${arquivo}`).toString('base64')}) format('woff2')}`;
 const FONTES = fonte('Mono', 'mono.woff2') + fonte('MonoB', 'mono-bold.woff2');
@@ -149,18 +149,37 @@ function hero() {
     }).join('');
     const c1 = chip(344, 196, '01', T, { tamanho: 10 }), c2 = chip(378, 196, '02', T, { tamanho: 10 }), c3 = chip(170, 268, '03', T, { tamanho: 10 });
 
-    // Espaço de embeddings: agrupamentos fixos, a consulta e os 5 vizinhos mais próximos.
-    const ex = 520, ey = 40, ew = 284, eh = 300;
+    // Espaço de embeddings: cada agrupamento tem sua cor. A consulta passeia entre eles e, em cada
+    // parada, acende e liga os 5 vizinhos mais próximos; o ciclo se repete a cada CICLO segundos.
+    const ex = 520, ey = 40, ew = 284, eh = 300, CICLO = 12;
     let s = 11;
     const rnd = () => ((s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296);
-    const grupos = [['claude · mcp', 110, 90], ['playwright · robôs', 210, 70], ['electron · webrtc', 70, 210], ['postgres · dbt', 190, 230], ['fastapi · flask', 230, 150]];
+    const grupos = [['claude · mcp', 70, 78, T.violeta], ['playwright · robôs', 218, 74, T.bronze], ['electron · webrtc', 66, 224, T.verde], ['postgres · dbt', 214, 230, T.azul], ['fastapi · flask', 142, 154, T.rosa]];
     const pontos = [];
-    for (const [rot, gx, gy] of grupos) for (let i = 0; i < 9; i++) pontos.push({ x: gx + (rnd() - 0.5) * 70, y: gy + (rnd() - 0.5) * 50, rot });
-    const consulta = { x: 150, y: 140 };
-    const vizinhos = [...pontos].sort((a, b) => Math.hypot(a.x - consulta.x, a.y - consulta.y) - Math.hypot(b.x - consulta.x, b.y - consulta.y)).slice(0, 5);
-    const pts = pontos.map((p) => `<circle cx="${(ex + p.x).toFixed(1)}" cy="${(ey + p.y).toFixed(1)}" r="${vizinhos.includes(p) ? 3.6 : 2.4}" fill="${vizinhos.includes(p) ? T.ambar : T.apagado}"/>`).join('');
-    const linhas = vizinhos.map((p, i) => `<line x1="${ex + consulta.x}" y1="${ey + consulta.y}" x2="${(ex + p.x).toFixed(1)}" y2="${(ey + p.y).toFixed(1)}" stroke="${T.ambar}" stroke-width="1.2" class="traco" style="animation-delay:${(2.2 + i * 0.15).toFixed(2)}s"/>`).join('');
-    const rotulos = grupos.map(([rot, gx, gy]) => `<text x="${ex + gx}" y="${ey + gy + 38}" font-size="9.5" fill="${T.apagado}" text-anchor="middle">${rot}</text>`).join('');
+    for (const [rot, gx, gy, cor] of grupos) for (let i = 0; i < 10; i++) pontos.push({ x: gx + (rnd() - 0.5) * 64, y: gy + (rnd() - 0.5) * 46, cor });
+    const paradas = [{ x: 118, y: 112 }, { x: 108, y: 196 }, { x: 196, y: 150 }];
+    const pct = (v) => +v.toFixed(2);
+    const janela = (k) => [pct((k / paradas.length) * 100), pct(((k + 1) / paradas.length) * 100)];
+    let quadros = '', destaques = '';
+    paradas.forEach((c, k) => {
+      const [ini, fimJ] = janela(k);
+      const a = ini + 5, b = fimJ - 4;
+      quadros += `@keyframes e${k}{0%,${pct(a)}%{opacity:0}${pct(a + 1)}%,${pct(b)}%{opacity:1}${pct(b + 1)}%,100%{opacity:0}}`;
+      quadros += `@keyframes d${k}{0%,${pct(a)}%{stroke-dashoffset:1}${pct(a + 7)}%,100%{stroke-dashoffset:0}}`;
+      const viz = [...pontos].sort((p, q) => Math.hypot(p.x - c.x, p.y - c.y) - Math.hypot(q.x - c.x, q.y - c.y)).slice(0, 5);
+      destaques += viz.map((p) => `<line x1="${ex + c.x}" y1="${ey + c.y}" x2="${(ex + p.x).toFixed(1)}" y2="${(ey + p.y).toFixed(1)}" stroke="${T.ambar}" stroke-width="1.2" pathLength="1" stroke-dasharray="1" style="opacity:0;animation:e${k} ${CICLO}s linear infinite,d${k} ${CICLO}s ease-out infinite"/>`
+        + `<g style="opacity:0;animation:e${k} ${CICLO}s linear infinite"><circle cx="${(ex + p.x).toFixed(1)}" cy="${(ey + p.y).toFixed(1)}" r="4.5" fill="${T.ambar}"/><circle cx="${(ex + p.x).toFixed(1)}" cy="${(ey + p.y).toFixed(1)}" r="8.5" fill="none" stroke="${T.ambar}" stroke-opacity=".45"/></g>`).join('');
+    });
+    // Movimento da consulta: segura em cada parada e desliza até a próxima.
+    const base = paradas[0];
+    const pos = (c) => `transform:translate(${c.x - base.x}px,${c.y - base.y}px)`;
+    let mover = `0%{${pos(paradas.at(-1))}}`;
+    paradas.forEach((c, k) => { const [ini, fimJ] = janela(k); mover += `${pct(ini + 3)}%,${pct(fimJ - 1)}%{${pos(c)}}`; });
+    mover += `100%{${pos(paradas.at(-1))}}`;
+    quadros += `@keyframes mover{${mover}}`;
+    const pts = pontos.map((p) => `<circle cx="${(ex + p.x).toFixed(1)}" cy="${(ey + p.y).toFixed(1)}" r="2.6" fill="${p.cor}" fill-opacity=".8"/>`).join('');
+    const rotulos = grupos.map(([rot, gx, gy]) => `<text x="${ex + gx}" y="${ey + gy + 36}" font-size="9.5" fill="${T.apagado}" text-anchor="middle">${rot}</text>`).join('');
+    const consultaSvg = `<g style="animation:mover ${CICLO}s cubic-bezier(.6,0,.3,1) infinite"><circle cx="${ex + base.x}" cy="${ey + base.y}" r="12" fill="none" stroke="${T.ambar}" stroke-opacity=".5"/><circle cx="${ex + base.x}" cy="${ey + base.y}" r="5" fill="${T.ambar}"/><circle cx="${ex + base.x}" cy="${ey + base.y}" r="5" fill="none" stroke="${T.ambar}" class="anel"/><text x="${ex + base.x + 12}" y="${ey + base.y - 9}" font-size="11" fill="${T.ambar}">q</text></g>`;
     const corpo = `
 ${q.svg}<text x="${36 + q.w + 12}" y="50" font-size="15" fill="${T.texto}">"quem sou?"</text>
 <text x="34" y="122" font-size="54" class="b" fill="${T.texto}">Saulo Costa</text>
@@ -174,13 +193,11 @@ ${fontes}
 <rect x="${ex - 16}" y="${ey - 16}" width="${ew + 32}" height="${eh + 32}" rx="8" fill="none" stroke="${T.linha}"/>
 <text x="${ex}" y="${ey + 6}" font-size="10" fill="${T.apagado}" letter-spacing="1.5">ESPAÇO DE EMBEDDINGS</text>
 <text x="${ex + ew}" y="${ey + 6}" font-size="10" fill="${T.ambar}" text-anchor="end">top-k = 5</text>
-${pts}${linhas}${rotulos}
-<circle cx="${ex + consulta.x}" cy="${ey + consulta.y}" r="5" fill="${T.ambar}"/>
-<circle cx="${ex + consulta.x}" cy="${ey + consulta.y}" r="5" fill="none" stroke="${T.ambar}" class="anel"/>`;
+${pts}${rotulos}${destaques}${consultaSvg}`;
     return {
       altura: 400, corpo, moldura: false,
       estilo: `${ESTILO_STREAM}
-.traco{stroke-dasharray:200;stroke-dashoffset:200;animation:tracar .6s ease-out forwards}@keyframes tracar{to{stroke-dashoffset:0}}
+${quadros}
 .anel{transform-box:fill-box;transform-origin:center;animation:anel 2.4s ease-out infinite}@keyframes anel{from{transform:scale(1);opacity:.9}to{transform:scale(4);opacity:0}}`,
     };
   });
