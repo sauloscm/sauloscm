@@ -84,7 +84,7 @@
 
 <sub>a conta pessoal e a do estágio somadas; da conta do estágio entram só contagens</sub>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/telemetria-dark.svg?v=2b309f0c"><img src="assets/telemetria-light.svg?v=53b6a274" width="100%" alt="Telemetria das duas contas: contribuições no mesmo calendário, hábitos de commit por hora e linguagens mais usadas."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/telemetria-dark.svg?v=39d0fc9f"><img src="assets/telemetria-light.svg?v=1b3e3553" width="100%" alt="Telemetria das duas contas: contribuições no mesmo calendário, hábitos de commit por hora e linguagens mais usadas."></picture>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg?v=63e07ace"><img src="assets/divisor-light.svg?v=3c5270fc" width="100%" alt=""></picture>
 
