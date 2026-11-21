@@ -7,7 +7,7 @@
   <a href="mailto:saulocm1@gmail.com"><img src="https://img.shields.io/badge/email-5BD6A2?style=flat-square&logo=gmail&logoColor=1A1408" alt="email"></a>
 </p>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/impacto-dark.svg?v=87a088a7"><img src="assets/impacto-light.svg?v=f5937be4" width="100%" alt="Impacto: 7+ automações em produção; cerca de 5.000 tabelas ao alcance do agente de dados; 60+ etapas no teste de ponta a ponta do Oluasin; contribuições em 12 meses somando a conta pessoal e a do estágio."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/impacto-dark.svg?v=b28fdacc"><img src="assets/impacto-light.svg?v=2d6ad2fc" width="100%" alt="Impacto: 7+ automações em produção; cerca de 5.000 tabelas ao alcance do agente de dados; 60+ etapas no teste de ponta a ponta do Oluasin; contribuições em 12 meses somando a conta pessoal e a do estágio."></picture>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg?v=63e07ace"><img src="assets/divisor-light.svg?v=3c5270fc" width="100%" alt=""></picture>
 
@@ -84,7 +84,7 @@
 
 <sub>a conta pessoal e a do estágio somadas; da conta do estágio entram só contagens</sub>
 
-<picture><source media="(prefers-color-scheme: dark)" srcset="assets/telemetria-dark.svg?v=684ef043"><img src="assets/telemetria-light.svg?v=07eaf3ca" width="100%" alt="Telemetria das duas contas: contribuições no mesmo calendário, hábitos de commit por hora e linguagens mais usadas."></picture>
+<picture><source media="(prefers-color-scheme: dark)" srcset="assets/telemetria-dark.svg?v=ae4f8529"><img src="assets/telemetria-light.svg?v=03efc6c4" width="100%" alt="Telemetria das duas contas: contribuições no mesmo calendário, hábitos de commit por hora e linguagens mais usadas."></picture>
 
 <picture><source media="(prefers-color-scheme: dark)" srcset="assets/divisor-dark.svg?v=63e07ace"><img src="assets/divisor-light.svg?v=3c5270fc" width="100%" alt=""></picture>
 
